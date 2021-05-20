@@ -19,7 +19,6 @@
 
 #include <iostream>
 #include <chrono>
-#include "omp.h"
 
 int par_run(const std::string &detector_file, const std::string &cells_dir, unsigned int events) {
     auto env_d_d = std::getenv("TRACCC_TEST_DATA_DIR");

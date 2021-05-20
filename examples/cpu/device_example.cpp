@@ -19,6 +19,7 @@
 
 #include <iostream>
 #include <chrono>
+#include "omp.h"
 
 int seq_run(const std::string& detector_file, const std::string& cells_dir, unsigned int events)
 {
@@ -49,6 +50,69 @@ int seq_run(const std::string& detector_file, const std::string& cells_dir, unsi
     // Memory resource used by the EDM.
     vecmem::host_memory_resource resource;
 
+    std::string event_string = "000000000";
+    std::string event_number = std::to_string(1);
+    event_string.replace(event_string.size()-event_number.size(), event_number.size(), event_number);
+
+    std::string io_cells_file = data_directory+cells_dir+std::string("/event")+event_string+std::string("-cells.csv");
+    traccc::cell_reader creader(io_cells_file, {"geometry_id", "hit_id", "cannel0", "channel1", "activation", "time"});
+    traccc::host_cell_container cells_per_event = traccc::read_cells(creader, resource, surface_transforms);
+
+    traccc::cell_module module = cells_per_event.headers[0];
+    module.pixel.min_center_y=4.5;
+    module.pixel.pitch_x=1.0;
+
+    int size = 3;
+
+    std::array<traccc::scalar , 3> array = {0.1, 0.2, 0.3};
+    traccc::scalar* arr_pointer = array.data();
+
+    vecmem::vector<traccc::scalar> v({1.0, 2.0, 3.0}, &resource);
+    traccc::scalar* v_pointer = v.data();
+
+    vecmem::jagged_vector<traccc::scalar> jv({vecmem::vector<traccc::scalar>({1,2,3}),
+                                                vecmem::vector<traccc::scalar>({10, 20, 30})},
+                                             &resource);
+    traccc::scalar* jv_pointer = &jv.data()->at(0);
+    for (int i=0; i<6; i++)
+        printf("%f ", jv_pointer[i]);
+
+
+#pragma omp target map(to:module, arr_pointer[0:size], v_pointer[0:size], jv_pointer[0:6])
+    {
+           int device = omp_is_initial_device();
+           if (!device) {
+               printf("On GPU: \n");
+               printf("Module = %d\n", module.module);
+               printf("Event  = %d\n", module.event);
+               printf("Range0 = %lu\n", module.range0);
+               printf("Range1 = %lu\n", module.range1);
+               printf("Pixelx = %f\n", module.pixel.pitch_x);
+               printf("Pixely = %f\n", module.pixel.pitch_y);
+               printf("Minx = %f\n", module.pixel.min_center_x);
+               printf("Miny = %f\n", module.pixel.min_center_y);
+
+               printf("\nstd::array:\n");
+               for (int i=0; i<size; i++)
+                   printf("%f ", arr_pointer[i]);
+
+               printf("\nvecmem::vector:\n");
+               for (int i=0; i<size; i++)
+                   printf("%f ", v_pointer[i]);
+
+               printf("\nvecmem::jagged_vector:\n");
+               for (int i=0; i<6; i++)
+                   printf("%f ", jv_pointer[i]);
+
+               printf("\nSuccess!\n");
+           //    printf("Placement size= %ld\n ", module.placement._data.size());
+
+           } else {
+               printf("Still on CPU \n");
+           }
+    }
+    /*
+#pragma omp parallel for
     // Loop over events
     for (unsigned int event = 0; event < events; ++event){
 
@@ -66,14 +130,15 @@ int seq_run(const std::string& detector_file, const std::string& cells_dir, unsi
         traccc::host_measurement_container measurements_per_event;
         traccc::host_spacepoint_container spacepoints_per_event;
         measurements_per_event.headers.reserve(cells_per_event.headers.size());
-	    measurements_per_event.items.reserve(cells_per_event.headers.size());
+        measurements_per_event.items.reserve(cells_per_event.headers.size());
         spacepoints_per_event.headers.reserve(cells_per_event.headers.size());
-	    spacepoints_per_event.items.reserve(cells_per_event.headers.size());
+        spacepoints_per_event.items.reserve(cells_per_event.headers.size());
 
+#pragma omp parallel for
         for (std::size_t i = 0; i < cells_per_event.items.size(); ++i )
         {
-	    auto& module = cells_per_event.headers[i];
-	      module.pixel = traccc::pixel_segmentation{-8.425, -36.025, 0.05, 0.05};
+            auto& module = cells_per_event.headers[i];
+            module.pixel = traccc::pixel_segmentation{-8.425, -36.025, 0.05, 0.05};
 
             // The algorithmic code part: start
             traccc::cluster_collection clusters_per_module = cc(cells_per_event.items[i], cells_per_event.headers[i]);
@@ -89,15 +154,15 @@ int seq_run(const std::string& detector_file, const std::string& cells_dir, unsi
             n_space_points += spacepoints_per_module.size();
 
             measurements_per_event.items.push_back(std::move(measurements_per_module));
-	        measurements_per_event.headers.push_back(module);
-	    
+            measurements_per_event.headers.push_back(module);
+
             spacepoints_per_event.items.push_back(std::move(spacepoints_per_module));
-    	    spacepoints_per_event.headers.push_back(module.module);
+            spacepoints_per_event.headers.push_back(module.module);
         }
 
         traccc::measurement_writer mwriter{std::string("event")+event_number+"-measurements.csv"};
-	for (size_t i=0; i<measurements_per_event.items.size(); ++i){
-	    auto measurements_per_module = measurements_per_event.items[i];
+        for (size_t i=0; i<measurements_per_event.items.size(); ++i){
+            auto measurements_per_module = measurements_per_event.items[i];
             auto module = measurements_per_event.headers[i];
             for (const auto& measurement : measurements_per_module){
                 const auto& local = measurement.local;
@@ -106,10 +171,10 @@ int seq_run(const std::string& detector_file, const std::string& cells_dir, unsi
         }
 
         traccc::spacepoint_writer spwriter{std::string("event")+event_number+"-spacepoints.csv"};
-	for (size_t i=0; i<spacepoints_per_event.items.size(); ++i){
-	    auto spacepoints_per_module = spacepoints_per_event.items[i];
+        for (size_t i=0; i<spacepoints_per_event.items.size(); ++i){
+            auto spacepoints_per_module = spacepoints_per_event.items[i];
             auto module = spacepoints_per_event.headers[i];
-	    
+
             for (const auto& spacepoint : spacepoints_per_module){
                 const auto& pos = spacepoint.global;
                 spwriter.append({ module, pos[0], pos[1], pos[2], 0., 0., 0.});
@@ -123,7 +188,7 @@ int seq_run(const std::string& detector_file, const std::string& cells_dir, unsi
     std::cout << "- created " << n_clusters << " clusters. " << std::endl;
     std::cout << "- created " << n_measurements << " measurements. " << std::endl;
     std::cout << "- created " << n_space_points << " space points. " << std::endl;
-
+*/
     return 0;
 }
 
@@ -133,7 +198,7 @@ int main(int argc, char *argv[])
 {
     if (argc < 4){
         std::cout << "Not enough arguments, minimum requirement: " << std::endl;
-        std::cout << "./seq_example <detector_file> <cell_directory> <events>" << std::endl;
+        std::cout << "./device_example <detector_file> <cell_directory> <events>" << std::endl;
         return -1;
     }
 
@@ -141,14 +206,21 @@ int main(int argc, char *argv[])
     auto cell_directory = std::string(argv[2]);
     auto events = std::atoi(argv[3]);
 
-    std::cout << "Running ./seq_exammple " << detector_file << " " << cell_directory << " " << events << std::endl;
-
+    std::cout << "Running ./device_exammple " << detector_file << " " << cell_directory << " " << events << std::endl;
     auto start = std::chrono::system_clock::now();
-    seq_run(detector_file, cell_directory, events);
+    auto result = seq_run(detector_file, cell_directory, events);
     auto end = std::chrono::system_clock::now();
 
     std::chrono::duration<double> diff = end-start;
     std::cout << "Execution time: " << diff.count() << " sec." << std::endl;
-
     return 0;
- }
+}
+
+
+/*
+ * # OMP device offload example
+set(GCC_GPU_OFFLOAD "-foffload=nvptx-none")
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${GCC_GPU_OFFLOAD}")
+add_executable (device_example device_example.cpp)
+target_link_libraries (device_example LINK_PUBLIC traccc::core traccc::io vecmem::core OpenMP::OpenMP_CXX)
+ */
