@@ -1,2 +1,2 @@
-add_executable (io_dec_example io_dec_example.cpp)
-target_link_libraries (io_dec_example LINK_PUBLIC traccc::core traccc::io vecmem::core OpenMP::OpenMP_CXX)
+add_executable(io_dec_example io_dec_example.cpp)
+target_link_libraries(io_dec_example LINK_PUBLIC traccc::core traccc::io vecmem::core OpenMP::OpenMP_CXX)

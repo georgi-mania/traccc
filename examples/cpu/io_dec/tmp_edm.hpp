@@ -5,18 +5,26 @@
 #include "edm/spacepoint.hpp"
 
 #include <map>
+#include <vecmem/memory/host_memory_resource.hpp>
 
 namespace traccc {
+
+    vecmem::host_memory_resource resource;
 
     struct result {
         traccc::host_measurement_container measurements;
         traccc::host_spacepoint_container spacepoints;
 
-        result() = delete;
-        result(traccc::host_measurement_container mc, traccc::host_spacepoint_container sc) : measurements(mc), spacepoints(sc) {};
+        void setMeasurements(const host_measurement_container &measurements) {
+            result::measurements = measurements;
+        }
+
+        void setSpacepoints(const host_spacepoint_container &spacepoints) {
+            result::spacepoints = spacepoints;
+        }
     };
 
     using geometry = std::map<traccc::geometry_id, traccc::transform3>;
-    using demonstrator_input = std::map<size_t , traccc::host_cell_container>;
-    using demonstrator_result = std::map<size_t, result>;
+    using demonstrator_input = vecmem::vector<traccc::host_cell_container>;
+    using demonstrator_result = vecmem::vector<traccc::result>;
 }

@@ -34,11 +34,11 @@ namespace writer {
         }
     }
 
-    void write(traccc::demonstrator_result *aggregated_results) {
+    void write(traccc::demonstrator_result aggregated_results) {
 
 #pragma omp parallel for
-        for (size_t event = 0; event < aggregated_results->size(); ++event) {
-            auto &eventResult = aggregated_results->at(event);
+        for (size_t event = 0; event < aggregated_results.size(); ++event) {
+            auto &eventResult = aggregated_results.at(event);
             write_measurements(event, eventResult.measurements);
             write_spacepoints(event, eventResult.spacepoints);
         }

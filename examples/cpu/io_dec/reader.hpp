@@ -7,16 +7,11 @@
 #include "tmp_edm.hpp"
 #include "csv/csv_io.hpp"
 
-#include <vecmem/memory/host_memory_resource.hpp>
-
 #include <functional>
 
 using namespace std::placeholders;
 
 namespace reader {
-
-    // Memory resource used by the EDM.
-    vecmem::host_memory_resource resource;
 
     const std::string data_directory() {
         auto env_d_d = std::getenv("TRACCC_TEST_DATA_DIR");
@@ -52,14 +47,14 @@ namespace reader {
                 std::string("-cells.csv");
         traccc::cell_reader creader(io_cells_file,
                                     {"geometry_id", "hit_id", "cannel0", "channel1", "activation", "time"});
-        return traccc::read_cells(creader, resource, surface_transforms);
+        return traccc::read_cells(creader, traccc::resource, surface_transforms);
     }
 
-    traccc::demonstrator_input* read(size_t events, const std::string &detector_file, const std::string &cell_directory) {
+    traccc::demonstrator_input read(size_t events, const std::string &detector_file, const std::string &cell_directory) {
         auto geometry = read_geometry(detector_file);
         auto readFn = std::bind(read_cells_from_event, _1, cell_directory, geometry);
 
-        traccc::demonstrator_input *input_data = new traccc::demonstrator_input();
+        traccc::demonstrator_input input_data(events, &traccc::resource);
 
 #pragma omp parallel for
         for (size_t event = 0; event < events; ++event) {
@@ -67,9 +62,9 @@ namespace reader {
 
 #pragma omp critical
             {
-                input_data->insert(
-                        std::pair<size_t, traccc::host_cell_container>(event, std::move(cells_per_event)));
+                input_data[event] = cells_per_event;
             }
+
         }
 
         return input_data;

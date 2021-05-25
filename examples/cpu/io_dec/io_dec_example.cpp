@@ -7,7 +7,7 @@
 #include <iostream>
 #include <chrono>
 
-traccc::demonstrator_result* run(traccc::demonstrator_input* input_data) {
+traccc::demonstrator_result run(traccc::demonstrator_input input_data) {
 
     // Algorithms
     traccc::component_connection cc;
@@ -23,11 +23,11 @@ traccc::demonstrator_result* run(traccc::demonstrator_input* input_data) {
     uint64_t n_measurements = 0;
     uint64_t n_space_points = 0;
 
-    traccc::demonstrator_result *aggregated_results = new traccc::demonstrator_result();
+    traccc::demonstrator_result aggregated_results(input_data.size(), &traccc::resource);
 
 #pragma omp parallel for reduction(+:n_modules, n_cells, n_clusters, n_measurements, n_space_points)
-    for (size_t event = 0; event < input_data->size(); ++event) {
-        traccc::host_cell_container cells_per_event = input_data->operator[](event);
+    for (size_t event = 0; event < input_data.size(); ++event) {
+        traccc::host_cell_container cells_per_event = input_data.operator[](event);
         // Output containers
         traccc::host_measurement_container measurements_per_event;
         traccc::host_spacepoint_container spacepoints_per_event;
@@ -67,9 +67,8 @@ traccc::demonstrator_result* run(traccc::demonstrator_input* input_data) {
 
 #pragma omp critical
         {
-            traccc::result eventResult(std::move(measurements_per_event),
-                                       std::move(spacepoints_per_event));
-            aggregated_results->insert(std::pair<size_t, traccc::result>(event, eventResult));
+            aggregated_results[event].setMeasurements(measurements_per_event);
+            aggregated_results[event].setSpacepoints(spacepoints_per_event);
         };
 
     }
@@ -101,6 +100,7 @@ int main(int argc, char *argv[]) {
     auto events = static_cast<size_t> (std::atoi(argv[3]));
 
     auto start = std::chrono::system_clock::now();
+    set_default_resource(&traccc::resource);
 
     writer::write(
             run(
