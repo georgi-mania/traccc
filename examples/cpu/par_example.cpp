@@ -11,8 +11,8 @@
 #include "edm/spacepoint.hpp"
 #include "geometry/pixel_segmentation.hpp"
 #include "algorithms/component_connection.hpp"
-#include "algorithms/measurement_creation.hpp"
-#include "algorithms/spacepoint_formation.hpp"
+#include "algorithms/measurements_creation.hpp"
+#include "algorithms/spacepoints_formation.hpp"
 #include "csv/csv_io.hpp"
 
 #include <vecmem/memory/host_memory_resource.hpp>
@@ -36,8 +36,8 @@ int par_run(const std::string &detector_file, const std::string &cells_dir, unsi
 
     // Algorithms
     traccc::component_connection cc;
-    traccc::measurement_creation mt;
-    traccc::spacepoint_formation sp;
+    traccc::measurements_creation mt;
+    traccc::spacepoints_formation sp;
 
     // Output stats
     uint64_t n_cells = 0;

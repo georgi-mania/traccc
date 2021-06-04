@@ -11,8 +11,8 @@
 #include "edm/spacepoint.hpp"
 #include "geometry/pixel_segmentation.hpp"
 #include "algorithms/component_connection.hpp"
-#include "algorithms/measurement_creation.hpp"
-#include "algorithms/spacepoint_formation.hpp"
+#include "algorithms/measurements_creation.hpp"
+#include "algorithms/spacepoints_formation.hpp"
 
 #include <vecmem/memory/host_memory_resource.hpp>
 
@@ -48,8 +48,8 @@ int main(){
   traccc::host_spacepoint_collection spacepoints;
 
   traccc::component_connection cc;
-  traccc::measurement_creation mt;
-  traccc::spacepoint_formation sp;
+  traccc::measurements_creation mt;
+  traccc::spacepoints_formation sp;
 
   // Algorithmic code: start
   clusters = cc(cells, module);

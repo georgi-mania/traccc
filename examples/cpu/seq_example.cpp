@@ -11,8 +11,8 @@
 #include "edm/spacepoint.hpp"
 #include "geometry/pixel_segmentation.hpp"
 #include "algorithms/component_connection.hpp"
-#include "algorithms/measurement_creation.hpp"
-#include "algorithms/spacepoint_formation.hpp"
+#include "algorithms/measurements_creation.hpp"
+#include "algorithms/spacepoints_formation.hpp"
 #include "csv/csv_io.hpp"
 
 #include <vecmem/memory/host_memory_resource.hpp>
@@ -36,8 +36,8 @@ int seq_run(const std::string& detector_file, const std::string& cells_dir, unsi
 
     // Algorithms
     traccc::component_connection cc;
-    traccc::measurement_creation mt;
-    traccc::spacepoint_formation sp;
+    traccc::measurements_creation mt;
+    traccc::spacepoints_formation sp;
 
     // Output stats
     uint64_t n_cells = 0;
@@ -72,6 +72,7 @@ int seq_run(const std::string& detector_file, const std::string& cells_dir, unsi
 
         for (std::size_t i = 0; i < cells_per_event.items.size(); ++i )
         {
+
 	    auto& module = cells_per_event.headers[i];
 	      module.pixel = traccc::pixel_segmentation{-8.425, -36.025, 0.05, 0.05};
 
@@ -139,7 +140,7 @@ int main(int argc, char *argv[])
 
     auto detector_file = std::string(argv[1]);
     auto cell_directory = std::string(argv[2]);
-    auto events = std::atoi(argv[3]);
+    auto events = 1;//std::atoi(argv[3]);
 
     std::cout << "Running ./seq_exammple " << detector_file << " " << cell_directory << " " << events << std::endl;
 

@@ -7,7 +7,7 @@ target_link_libraries (seq_example LINK_PUBLIC traccc::core traccc::io vecmem::c
 # find OpenMP
 find_package(OpenMP REQUIRED)
 set(GCC_OMP "-fopenmp")
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${GCC_OMP}")
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${GCC_OMP}") #-g -O0  -v -da -Q
 
 # OMP parallel example
 add_executable (par_example par_example.cpp)

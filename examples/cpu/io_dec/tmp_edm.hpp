@@ -15,12 +15,30 @@ namespace traccc {
         traccc::host_measurement_container measurements;
         traccc::host_spacepoint_container spacepoints;
 
-        void setMeasurements(const host_measurement_container &measurements) {
-            result::measurements = measurements;
+        void addMeasurement(const cell_module& module, const std::optional<measurement>& m) {
+            if (m.has_value()) {
+                traccc::host_measurement_collection holder;
+                holder.push_back(std::move(m.value()));
+
+                #pragma omp critical (results_measurement)
+                {
+                    measurements.headers.push_back(module);
+                    measurements.items.push_back(std::move(holder));
+                }
+            }
         }
 
-        void setSpacepoints(const host_spacepoint_container &spacepoints) {
-            result::spacepoints = spacepoints;
+        void addSpacepoint(const cell_module& module, const std::optional<spacepoint>& s) {
+            if (s.has_value()) {
+                traccc::host_spacepoint_collection holder;
+                holder.push_back(std::move(s.value()));
+
+                #pragma omp critical (results_spacepoints)
+                {
+                    spacepoints.headers.push_back(module.module);
+                    spacepoints.items.push_back(std::move(holder));
+                };
+            }
         }
     };
 

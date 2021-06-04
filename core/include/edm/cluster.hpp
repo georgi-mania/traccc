@@ -19,6 +19,7 @@ namespace traccc {
     /// a list of cells that make up the cluster
     struct cluster {
         std::vector<cell> cells;
+        float threshold = 0.;
     };
 
     using position_estimation = std::function<vector2(channel_id,channel_id)>;
@@ -37,7 +38,7 @@ namespace traccc {
         
         position_estimation position_from_cell 
             = [](channel_id ch0,channel_id ch1) -> vector2 
-                { return {static_cast<float>(ch0), static_cast<float>(ch1)}; };
+                {return {static_cast<float>(ch0), static_cast<float>(ch1)}; };
 
         float threshold = 0.;
         signal_modeling signal 
@@ -47,6 +48,21 @@ namespace traccc {
 
     using cluster_container = std::vector<cluster_collection>;
 
+    vector2 position_from_cell (channel_id ch0,channel_id ch1){
+        return {static_cast<float>(ch0), static_cast<float>(ch1)};
+    }
+
+    float signal (float signal_in) {
+        return signal_in;
+    }
+
 }
 
-
+//TODO Georgiana:
+// 1. remove cluster_collection; functions exposed in namespace directly;
+//  - in measurement_formation use info from the module and generic fns
+//  - in spacepoint_formation use info from module
+// 2. measurement- & spacepoint formation operator() -> works on 1 element instead of collection
+//  -  aggregation in calling function
+// 3. pass module info as fn closure to measurement- and spacepoint formation fns
+// 4. validate results against sequential code
