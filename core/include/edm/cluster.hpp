@@ -8,7 +8,7 @@
 #pragma once
 
 #include "edm/cell.hpp"
-
+#include "geometry/pixel_segmentation.hpp"
 #include <vector>
 #include <functional>
 
@@ -21,8 +21,8 @@ namespace traccc {
         std::vector<cell> cells;
     };
 
-    using position_estimation = std::function<vector2(channel_id,channel_id)>;
-    using signal_modeling = std::function<float(float)>;
+  //  using position_estimation = std::function<vector2(channel_id,channel_id)>;
+//    using signal_modeling = std::function<float(float)>;
 
     /// A cluster collection which carries the geometry_id, the clusters
     /// and the additional information to create the cluster position 
@@ -34,14 +34,20 @@ namespace traccc {
         transform3 placement = transform3{};
 
         std::vector<cluster> items;
-        
-        position_estimation position_from_cell 
-            = [](channel_id ch0,channel_id ch1) -> vector2 
-                { return {static_cast<float>(ch0), static_cast<float>(ch1)}; };
 
+        pixel_segmentation segm;
+
+        vector2 position_from_cell(channel_id ch0,channel_id ch1) const {
+            return { segm.min_center_x + static_cast<float>(ch0) * segm.pitch_x,
+                     segm.min_center_y + static_cast<float>(ch1) * segm.pitch_y };
+        }
+     /*   position_estimation position_from_cell
+            = [] (channel_id ch0,channel_id ch1) -> vector2
+                { return {static_cast<float>(ch0), static_cast<float>(ch1)}; };
+*/
         float threshold = 0.;
-        signal_modeling signal 
-            = [](float signal_in) -> float {return signal_in; };
+   //     signal_modeling signal
+     //       = [](float signal_in) -> float {return signal_in; };
         
     };
 

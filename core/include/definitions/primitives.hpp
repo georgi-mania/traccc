@@ -16,11 +16,11 @@ namespace traccc {
     using geometry_id = uint64_t;
     using event_id = uint64_t;
 
-    using vector2 = std::array<scalar, 2>;
-    using point2 = std::array<scalar, 2>;
-    using variance2 = std::array<scalar, 2>;
-    using point3 = std::array<scalar, 3>;
-    using vector3 = std::array<scalar, 3>;
-    using variance3 = std::array<scalar, 3>;
+    using vector2 = std::vector<scalar>;
+    using point2 = std::vector<scalar>;
+    using variance2 = std::vector<scalar>;
+    using point3 = std::vector<scalar>;
+    using vector3 = std::vector<scalar>;
+    using variance3 = std::vector<scalar>;
 
 }

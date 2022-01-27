@@ -129,7 +129,21 @@ namespace traccc {
           }
         }
         // Sort in column major order
-        std::sort(cells.items.begin(), cells.items.end(), [](const auto& a, const auto& b){ return a.channel1 < b.channel1; } );
+        std::qsort(cells.items.data(), cells.items.size(), sizeof(traccc::cell),
+                   [](const void* a, const void* b)
+                        {   const cell* arg1 = static_cast<const cell*>(a);
+                            const cell* arg2 = static_cast<const cell*>(b);
+                            if (arg1->channel1 < arg2->channel1) {
+                                return -1;
+                            } else if (arg1->channel1 > arg2->channel1) {
+                                return 1;
+                            } else {
+                                return 0;
+                            }
+                        });
+   //     std::sort(cells.items.begin(), cells.items.end(),
+     //             [](const auto &a, const auto &b) { return a.channel1 < b.channel1; });
+
         cell_container.push_back(cells);
         // Clear for next round
         cells = cell_collection();

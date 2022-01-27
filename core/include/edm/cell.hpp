@@ -38,9 +38,9 @@ namespace traccc {
         geometry_id module = 0;
         transform3 placement = transform3{};
 
-        std::vector<cell> items;
-        std::array<channel_id,2> range0 = {std::numeric_limits<channel_id>::max(), 0};
-        std::array<channel_id,2> range1 = {std::numeric_limits<channel_id>::max(), 0};         
+        std::vector<cell> items{};
+        std::vector<channel_id> range0 = {std::numeric_limits<channel_id>::max(), 0};
+        std::vector<channel_id> range1 = {std::numeric_limits<channel_id>::max(), 0};
     };
 
     using cell_container = std::vector<cell_collection>;

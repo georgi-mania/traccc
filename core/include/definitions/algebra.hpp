@@ -11,52 +11,52 @@
 
 #include <any>
 #include <cmath>
-#include <array>
+//#include <array>
 
 // This is taken from the acts/detray library
 namespace traccc
 {
 
-    std::array<scalar, 2> operator*(const std::array<scalar, 2> &a, scalar s)
+    std::vector<scalar> operator*(const std::vector<scalar> &a, scalar s)
     {
         return {a[0] * s, a[1] * s};
     }
 
-    std::array<scalar, 2> operator*(scalar s, const std::array<scalar, 2> &a)
+    std::vector<scalar> operator*(scalar s, const std::vector<scalar> &a)
     {
         return {s * a[0], s * a[1]};
     }
 
-    std::array<scalar, 2> operator-(const std::array<scalar, 2> &a, const std::array<scalar, 2> &b)
+    std::vector<scalar> operator-(const std::vector<scalar> &a, const std::vector<scalar> &b)
     {
         return {a[0] - b[0], a[1] - b[1]};
     }
 
-    std::array<scalar, 2> operator+(const std::array<scalar, 2> &a, const std::array<scalar, 2> &b)
+    std::vector<scalar> operator+(const std::vector<scalar> &a, const std::vector<scalar> &b)
     {
         return {a[0] + b[0], a[1] + b[1]};
     }
-
-    std::array<scalar, 3> operator*(const std::array<scalar, 3> &a, scalar s)
+/*
+    std::vector<scalar> operator*(const std::vector<scalar> &a, scalar s)
     {
         return {a[0] * s, a[1] * s, a[2] * s};
     }
 
-    std::array<scalar, 3> operator*(scalar s, const std::array<scalar, 3> &a)
+    std::vector<scalar> operator*(scalar s, const std::vector<scalar> &a)
     {
         return {s * a[0], s * a[1], s * a[2]};
     }
 
-    std::array<scalar, 3> operator-(const std::array<scalar, 3> &a, const std::array<scalar, 3> &b)
+    std::vector<scalar> operator-(const std::vector<scalar> &a, const std::vector<scalar> &b)
     {
         return {a[0] - b[0], a[1] - b[1], a[2] - b[2]};
     }
 
-    std::array<scalar, 3> operator+(const std::array<scalar, 3> &a, const std::array<scalar, 3> &b)
+    std::vector<scalar> operator+(const std::vector<scalar> &a, const std::vector<scalar> &b)
     {
         return {a[0] + b[0], a[1] + b[1], a[2] + b[2]};
     }
-
+*/
 
     namespace vector
     {
@@ -70,7 +70,7 @@ namespace traccc
          * 
          * @return a vector (expression) representing the cross product
          **/
-        std::array<scalar, 3> cross(const std::array<scalar, 3> &a, const std::array<scalar, 3> &b)
+        std::vector<scalar> cross(const std::vector<scalar> &a, const std::vector<scalar> &b)
         {
             return {a[1] * b[2] - b[1] * a[2], a[2] * b[0] - b[2] * a[0], a[0] * b[1] - b[0] * a[1]};
         }
@@ -113,7 +113,7 @@ namespace traccc
          * 
          * @param v the input vector 
          **/
-        auto norm(const std::array<scalar, 2> &v)
+        auto norm(const std::vector<scalar> &v)
         {
             return perp(v);
         }
@@ -122,11 +122,11 @@ namespace traccc
          * 
          * @param v the input vector 
          **/
-        auto norm(const std::array<scalar, 3> &v)
+  /*      auto norm(const std::vector<scalar> &v)
         {
             return std::sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
         }
-
+*/
         /** This method retrieves the pseudo-rapidity from a vector or vector base with rows >= 3
          * 
          * @param v the input vector 
@@ -141,7 +141,7 @@ namespace traccc
          * 
          * @param m the input matrix 
          **/
-        template <unsigned int kROWS, typename matrix_type>
+/*        template <unsigned int kROWS, typename matrix_type>
         auto vector(const matrix_type &m, unsigned int row, unsigned int col) noexcept
         {
             std::array<scalar, kROWS> subvector;
@@ -151,12 +151,12 @@ namespace traccc
             }
             return subvector;
         }
-
+*/
         /** This method retrieves a column from a matrix
          * 
          * @param m the input matrix 
          **/
-        template <unsigned int kROWS, unsigned int kCOLS, typename matrix_type>
+/*        template <unsigned int kROWS, unsigned int kCOLS, typename matrix_type>
         auto block(const matrix_type &m, unsigned int row, unsigned int col) noexcept
         {
             std::array<std::array<scalar, kROWS>, kCOLS> submatrix;
@@ -169,7 +169,7 @@ namespace traccc
             }
             return submatrix;
         }
-
+*/
     } // namespace getter
 
         /** Transform wrapper class to ensure standard API within differnt plugins
@@ -177,7 +177,7 @@ namespace traccc
         struct transform3
         {
 
-            using matrix44 = std::array<std::array<scalar, 4>, 4>;
+            using matrix44 = std::vector<std::vector<scalar>>;
 
             matrix44 _data;
             matrix44 _data_inv;
@@ -194,7 +194,12 @@ namespace traccc
             transform3(const vector3 &t, const vector3 &z, const vector3 &x)
             {
                 auto y = vector::cross(z, x);
-                _data[0][0] = x[0];
+                _data.reserve(4);
+                _data.push_back({x[0],x[1],x[2], 0.});
+                _data.push_back({y[0],y[1],y[2], 0.});
+                _data.push_back({z[0],z[1],z[2], 0.});
+                _data.push_back({t[0],t[1],t[2], 1.});
+      /*          _data[0][0] = x[0];
                 _data[0][1] = x[1];
                 _data[0][2] = x[2];
                 _data[0][3] = 0.;
@@ -210,7 +215,7 @@ namespace traccc
                 _data[3][1] = t[1];
                 _data[3][2] = t[2];
                 _data[3][3] = 1.;
-
+*/
                 _data_inv = invert(_data);
             }
 
@@ -220,7 +225,14 @@ namespace traccc
              **/
             transform3(const vector3 &t)
             {
-                _data[0][0] = 1.;
+
+                _data.reserve(4);
+                _data.push_back({1., 0., 0., 0.});
+                _data.push_back({0., 1., 0., 0.});
+                _data.push_back({0., 0., 1., 0.});
+                _data.push_back({t[0],t[1],t[2], 1.});
+
+       /*         _data[0][0] = 1.;
                 _data[0][1] = 0.;
                 _data[0][2] = 0.;
                 _data[0][3] = 0.;
@@ -236,7 +248,7 @@ namespace traccc
                 _data[3][1] = t[1];
                 _data[3][2] = t[2];
                 _data[3][3] = 1.;
-
+*/
                 _data_inv = invert(_data);
             }
 
@@ -253,7 +265,7 @@ namespace traccc
              * 
              * @param ma is the full 4x4 matrix 16 array
              **/
-            transform3(const std::array<scalar, 16> &ma)
+  /*          transform3(const std::array<scalar, 16> &ma)
             {
                 _data[0][0] = ma[0];
                 _data[0][1] = ma[4];
@@ -274,13 +286,19 @@ namespace traccc
 
                 _data_inv = invert(_data);
             }
-
+*/
             /** Constructor with arguments: identity
              *
              **/
             transform3()
             {
-                _data[0][0] = 1.;
+                _data.reserve(4);
+                _data.push_back({1., 0., 0., 0.});
+                _data.push_back({0., 1., 0., 0.});
+                _data.push_back({0., 0., 1., 0.});
+                _data.push_back({0., 0., 0., 1.});
+
+    /*            _data[0][0] = 1.;
                 _data[0][1] = 0.;
                 _data[0][2] = 0.;
                 _data[0][3] = 0.;
@@ -296,7 +314,7 @@ namespace traccc
                 _data[3][1] = 0.;
                 _data[3][2] = 0.;
                 _data[3][3] = 1.;
-
+*/
                 _data_inv = _data;
             }
 
@@ -335,6 +353,10 @@ namespace traccc
             static matrix44 invert(const matrix44 &m)
             {
                 matrix44 i;
+                i.reserve(4);
+                for (int j = 0; j < 4; j++) {
+                    i.push_back({0,0,0,0});
+                }
                 i[0][0] = m[2][1] * m[3][2] * m[1][3] - m[3][1] * m[2][2] * m[1][3] + m[3][1] * m[1][2] * m[2][3] - m[1][1] * m[3][2] * m[2][3] - m[2][1] * m[1][2] * m[3][3] + m[1][1] * m[2][2] * m[3][3];
                 i[1][0] = m[3][0] * m[2][2] * m[1][3] - m[2][0] * m[3][2] * m[1][3] - m[3][0] * m[1][2] * m[2][3] + m[1][0] * m[3][2] * m[2][3] + m[2][0] * m[1][2] * m[3][3] - m[1][0] * m[2][2] * m[3][3];
                 i[2][0] = m[2][0] * m[3][1] * m[1][3] - m[3][0] * m[2][1] * m[1][3] + m[3][0] * m[1][1] * m[2][3] - m[1][0] * m[3][1] * m[2][3] - m[2][0] * m[1][1] * m[3][3] + m[1][0] * m[2][1] * m[3][3];
@@ -369,18 +391,21 @@ namespace traccc
              */
             static vector3 rotate(const matrix44 &m, const vector3 &v)
             {
-
-                return vector3{m[0][0] * v[0] + m[1][0] * v[1] + m[2][0] * v[2],
-                               m[0][1] * v[0] + m[1][1] * v[1] + m[2][1] * v[2],
-                               m[0][2] * v[0] + m[1][2] * v[1] + m[2][2] * v[2]};
+            //    printf("reaching rotate with v=[%f %f %f] and matrix44[0][0]=%f\n", v[0], v[1],v[2], m[0][0]);
+                vector3* result = new vector3();
+                result->push_back(m[0][0] * v[0] + m[1][0] * v[1] + m[2][0] * v[2]);
+                result->push_back(m[0][1] * v[0] + m[1][1] * v[1] + m[2][1] * v[2]);
+                result->push_back(m[0][2] * v[0] + m[1][2] * v[1] + m[2][2] * v[2]);
+         //       printf("leaving rotate with result[1]:%f\n", result->at(1));
+                return *result;
             }
 
             /** This method retrieves the rotation of a transform */
-            auto rotation() const
+     /*       auto rotation() const
             {
                 return getter::block<3, 3>(_data, 0, 0);
             }
-
+*/
             /** This method retrieves the translation of a transform */
             point3 translation() const
             {
@@ -436,7 +461,7 @@ namespace traccc
          * 
          * @return the scalar dot product value 
          **/
-        scalar dot(const std::array<scalar, 2> &a, const std::array<scalar, 2> &b)
+        scalar dot(const std::vector<scalar> &a, const std::vector<scalar> &b)
         {
             return a[0] * b[0] + a[1] * b[1];
         }
@@ -445,7 +470,7 @@ namespace traccc
          * 
          * @param v the input vector
          **/
-        std::array<scalar, 3> normalize(const std::array<scalar, 2> &v)
+        std::vector<scalar> normalize(const std::vector<scalar> &v)
         {
             scalar oon = 1. / std::sqrt(dot(v, v));
             return {v[0] * oon, v[1] * oon};
@@ -458,21 +483,21 @@ namespace traccc
          * 
          * @return the scalar dot product value 
          **/
-        scalar dot(const std::array<scalar, 3> &a, const std::array<scalar, 3> &b)
+  /*      scalar dot(const std::vector<scalar> &a, const std::vector<scalar> &b)
         {
             return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
         }
-
+*/
         /** Get a normalized version of the input vector
          * 
          * @param v the input vector
          **/
-        std::array<scalar, 3> normalize(const std::array<scalar, 3> &v)
+  /*      std::vector<scalar> normalize(const std::vector<scalar> &v)
         {
             scalar oon = 1. / std::sqrt(dot(v, v));
             return {v[0] * oon, v[1] * oon, v[2] * oon};
         }
-
+*/
     } // namespace vector
 
 } // end of namespace

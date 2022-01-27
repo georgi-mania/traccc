@@ -24,10 +24,10 @@ namespace traccc {
 
       /// Translate @param ch0, @param ch1 
       /// into a vector2 at @return for a pixel segemntation
-      vector2 operator()(channel_id ch0,channel_id ch1) 
-      { 
-          return { min_center_x + ch0 * pitch_x, min_center_y + ch1 * pitch_y };
-      };
+ //     vector2 operator()(channel_id ch0,channel_id ch1)
+ //     {
+ //         return { min_center_x + ch0 * pitch_x, min_center_y + ch1 * pitch_y };
+ //     };
 
     };
 

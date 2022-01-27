@@ -24,7 +24,7 @@ namespace traccc {
         ///
         /// c++20 piping interface:
         /// @return a cluster collection  
-        cluster_collection operator()(const cell_collection& cells) const {            
+        cluster_collection operator()(const cell_collection& cells) const {
             cluster_collection clusters;
             clusters.placement = cells.placement;
             this->operator()(cells, clusters);
@@ -39,7 +39,7 @@ namespace traccc {
         /// @param opt the call options
         ///
         /// void interface
-        void operator()(const cell_collection& cells, cluster_collection& clusters) const {         
+        void operator()(const cell_collection& cells, cluster_collection& clusters) const {
             // Assign the module id
             clusters.module = cells.module;
             // Run the algorithm  

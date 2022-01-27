@@ -64,18 +64,20 @@ namespace traccc
 
                 for (const auto &cell : cluster.cells)
                 {
-                    scalar weight = clusters.signal(cell.activation);
+                    scalar weight = cell.activation; //clusters.signal(cell.activation);
                     if (weight > clusters.threshold)
                     {
                         totalWeight += cell.activation;
                         auto cell_position = clusters.position_from_cell(cell.channel0, cell.channel1);
-                        p = p + weight * cell_position;
+                        p[0] = p[0] + weight * cell_position[0];
+                        p[1] = p[1] + weight * cell_position[1];
                     }
                 }
                 if (totalWeight > 0.)
                 {
                     measurement m;
-                    m.local = 1. / totalWeight * p;
+                    m.local[0] = 1. / totalWeight * p[0];
+                    m.local[1] = 1. / totalWeight * p[1];
                     // @todo add variance estimation
                     measurements.items.push_back(std::move(m));
                 }
