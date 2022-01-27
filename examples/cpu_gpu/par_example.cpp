@@ -78,64 +78,16 @@ int seq_run(const std::string& detector_file, const std::string& cells_dir, unsi
         traccc::cell_container cells_per_event = traccc::read_cells(creader, surface_transforms);
         m_modules += cells_per_event.size();
 
-        int count_items = 0;
-        for (auto& cells_per_module : cells_per_event) {
-            count_items += cells_per_module.items.size();
-        }
-
         // Output containers
-  //      traccc::measurement_container measurements_per_event;
         traccc::spacepoint_container spacepoints_per_event;
-    //    measurements_per_event.reserve(cells_per_event.size());
         spacepoints_per_event.resize(cells_per_event.size());
 
+        // Run in parallel on CPU/GPU
         std::transform(std::execution::par,
                        cells_per_event.begin(), cells_per_event.end(),
                        spacepoints_per_event.begin(), computation());
 
-
-      //  std::for_each(std::execution::par,
-        //               cells_per_event.begin(), cells_per_event.end(),
-          //             computation());
-
-        /*
-        std::transform(std::execution::par,
-                       cells_per_event.begin(), cells_per_event.end(),
-                       spacepoints_per_event.begin(),
-                       [&n_space_points, &n_cells, &n_measurements, &n_clusters](auto &cells_per_module) -> traccc::spacepoint_collection {
-
-            // The algorithmic code part: start
-
-            // Algorithms
-            traccc::component_connection cc;
-            traccc::measurement_creation mt;
-            traccc::spacepoint_formation sp;
-
-            traccc::cluster_collection clusters_per_module =  cc(cells_per_module);
-            clusters_per_module.position_from_cell = traccc::pixel_segmentation{-8.425, -36.025, 0.05, 0.05};
-            traccc::measurement_collection measurements_per_module = mt(clusters_per_module);
-            traccc::spacepoint_collection spacepoints_per_module = sp(measurements_per_module);
-            // The algorithmnic code part: end
-            
-              n_cells += cells_per_module.items.size();
-              n_clusters += clusters_per_module.items.size();
-              n_measurements += measurements_per_module.items.size();
-              n_space_points += spacepoints_per_module.items.size();
-
-            return std::move(spacepoints_per_module);
-        });
-
-         */
-
-  //      traccc::measurement_writer mwriter{std::string("event")+event_number+"-measurements.csv"};
-  //      for (const auto& measurements_per_module : measurements_per_event){
-  //          auto module = measurements_per_module.module;
-  //          for (const auto& measurement : measurements_per_module.items){
-  //              const auto& local = measurement.local;
-  //              mwriter.append({ module, local[0], local[1], 0., 0.});
-   //         }
-    //    }
-
+        // Write results
         traccc::spacepoint_writer spwriter{std::string("event")+event_number+"-spacepoints.csv"};
         for (const auto& spacepoint_per_module : spacepoints_per_event){
             auto module = spacepoint_per_module.module;
@@ -162,7 +114,7 @@ int main(int argc, char *argv[])
 {
     if (argc < 4){
         std::cout << "Not enough arguments, minimum requirement: " << std::endl;
-        std::cout << "./seq_example <detector_file> <cell_directory> <events>" << std::endl;
+        std::cout << "./par_example <detector_file> <cell_directory> <events>" << std::endl;
         return -1;
     }
 
@@ -170,6 +122,6 @@ int main(int argc, char *argv[])
     auto cell_directory = std::string(argv[2]);
     auto events = std::atoi(argv[3]);
 
-    std::cout << "Running ./seq_exammple " << detector_file << " " << cell_directory << " " << events << std::endl;
+    std::cout << "Running ./par_exammple " << detector_file << " " << cell_directory << " " << events << std::endl;
     return seq_run(detector_file, cell_directory, events);
 }

@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include <array>
+#include <vector>
 #include <stdint.h>
 
 namespace traccc {
