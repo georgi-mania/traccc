@@ -66,7 +66,7 @@ int seq_run(const std::string& detector_file, const std::string& cells_dir, unsi
         {
             // The algorithmic code part: start
             traccc::cluster_collection clusters_per_module =  cc(cells_per_module);
-            clusters_per_module.position_from_cell = traccc::pixel_segmentation{-8.425, -36.025, 0.05, 0.05};
+            clusters_per_module.segm = traccc::pixel_segmentation{-8.425, -36.025, 0.05, 0.05};
             traccc::measurement_collection measurements_per_module = mt(clusters_per_module);
             traccc::spacepoint_collection spacepoints_per_module = sp(measurements_per_module);
             // The algorithmnic code part: end

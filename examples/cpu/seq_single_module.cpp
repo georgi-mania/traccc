@@ -34,7 +34,7 @@ int main(){
   cells.module = 0;
 
   traccc::cluster_collection clusters;
-  clusters.position_from_cell = traccc::pixel_segmentation{0.,0.,1.,1.};
+  clusters.segm = traccc::pixel_segmentation{0.,0.,1.,1.};
 
   traccc::measurement_collection measurements;
   measurements.placement = traccc::transform3{};

@@ -21,16 +21,16 @@ TEST(io, csv_read_single_module)
     auto data_directory = std::string(env_d_d) + std::string("/");
 
     std::string file = data_directory+std::string("single_module/cells.csv");
-    traccc::cell_reader creader(file, {"module", "cannel0","channel1","activation","time"} );
+    traccc::cell_reader creader(file, {"module", "channel0","channel1","activation","time"} );
 
     auto single_module_cells = traccc::read_cells(creader);
     ASSERT_EQ(single_module_cells.size(), 1u);
     auto module_cells = single_module_cells[0];
 
     ASSERT_EQ(module_cells.module, 0u);
-    auto expected_range0 = std::array<traccc::channel_id,2>{123u,174u};
+    auto expected_range0 = std::vector<traccc::channel_id>{123u,174u};
     ASSERT_EQ(module_cells.range0, expected_range0);
-    auto expected_range1 = std::array<traccc::channel_id,2>{32u,880u};
+    auto expected_range1 = std::vector<traccc::channel_id>{32u,880u};
     ASSERT_EQ(module_cells.range1, expected_range1);
     ASSERT_EQ(module_cells.items.size(), 6u);
 
@@ -56,9 +56,9 @@ TEST(io, csv_read_two_modules)
     ASSERT_EQ(first_module_cells.items.size(), 6u);
 
     ASSERT_EQ(first_module_cells.module, 0u);
-    auto expected_range0 = std::array<traccc::channel_id,2>{123u,174u};
+    auto expected_range0 = std::vector<traccc::channel_id>{123u,174u};
     ASSERT_EQ(first_module_cells.range0, expected_range0);
-    auto expected_range1 = std::array<traccc::channel_id,2>{32u,880u};
+    auto expected_range1 = std::vector<traccc::channel_id>{32u,880u};
     ASSERT_EQ(first_module_cells.range1, expected_range1);
 
     auto second_module_cells = two_module_cells[1];
@@ -66,9 +66,9 @@ TEST(io, csv_read_two_modules)
     ASSERT_EQ(second_module_cells.items.size(), 8u);
 
     ASSERT_EQ(second_module_cells.module, 1u);
-    expected_range0 = std::array<traccc::channel_id,2>{0u,22u};
+    expected_range0 = std::vector<traccc::channel_id>{0u,22u};
     ASSERT_EQ(second_module_cells.range0, expected_range0);
-    expected_range1 = std::array<traccc::channel_id,2>{4u,98u};
+    expected_range1 = std::vector<traccc::channel_id>{4u,98u};
     ASSERT_EQ(second_module_cells.range1, expected_range1);
 
 }

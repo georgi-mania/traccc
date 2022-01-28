@@ -76,7 +76,7 @@ namespace traccc {
         sparse_ccl(const std::vector<cell>& cells){
 
             // Internal list linking
-            std::vector<unsigned int> L(cells.size(),0);
+            std::vector<unsigned int> L(1000, 0); //hack!
 
             // first scan: pixel association
             unsigned int start_j = 0;
@@ -106,7 +106,7 @@ namespace traccc {
                 }
                 L[i] = l;
             }
-            return { labels, L };
+            return { labels, std::move(L) };
         }
     }
 

@@ -42,7 +42,7 @@ namespace traccc {
             // Assign the module id
             spacepoints.module = measurements.module;
             // Run the algorithm
-            spacepoints.items.reserve(measurements.items.size());
+            spacepoints.items.reserve(100 /*measurements.items.size()*/);
             for (const auto& m : measurements.items){
                 spacepoint s;
                 point3 local_3d = {m.local[0], m.local[1], 0.};

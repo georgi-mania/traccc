@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <cstdio>
 #include "edm/cell.hpp"
 #include "edm/cluster.hpp"
 #include "detail/sparse_ccl.hpp"
@@ -44,7 +45,7 @@ namespace traccc {
             clusters.module = cells.module;
             // Run the algorithm  
             auto connected_cells = detail::sparse_ccl(cells.items);
-            std::vector<cluster> cluster_items(std::get<0>(connected_cells),cluster{});
+            std::vector<cluster> cluster_items(10000,cluster{});
             unsigned int icell = 0;
             for (auto cell_label : std::get<1>(connected_cells)){
                 auto cindex = static_cast<unsigned int>(cell_label-1);
@@ -52,6 +53,7 @@ namespace traccc {
                     cluster_items[cindex].cells.push_back(cells.items[icell++]);
                 }
             }
+
             clusters.items = cluster_items;
         }
 

@@ -179,8 +179,15 @@ namespace traccc
 
             using matrix44 = std::vector<std::vector<scalar>>;
 
-            matrix44 _data;
-            matrix44 _data_inv;
+            matrix44 _data{{1., 0., 0., 0.},
+                           {0., 1., 0., 0.},
+                           {0., 0., 1., 0.},
+                           {0., 0., 0., 1.}};
+
+            matrix44 _data_inv{{1., 0., 0., 0.},
+                               {0., 1., 0., 0.},
+                               {0., 0., 1., 0.},
+                               {0., 0., 0., 1.}};
 
             /** Contructor with arguments: t, z, x
              * 
@@ -194,12 +201,7 @@ namespace traccc
             transform3(const vector3 &t, const vector3 &z, const vector3 &x)
             {
                 auto y = vector::cross(z, x);
-                _data.reserve(4);
-                _data.push_back({x[0],x[1],x[2], 0.});
-                _data.push_back({y[0],y[1],y[2], 0.});
-                _data.push_back({z[0],z[1],z[2], 0.});
-                _data.push_back({t[0],t[1],t[2], 1.});
-      /*          _data[0][0] = x[0];
+                _data[0][0] = x[0];
                 _data[0][1] = x[1];
                 _data[0][2] = x[2];
                 _data[0][3] = 0.;
@@ -215,7 +217,7 @@ namespace traccc
                 _data[3][1] = t[1];
                 _data[3][2] = t[2];
                 _data[3][3] = 1.;
-*/
+
                 _data_inv = invert(_data);
             }
 
@@ -225,14 +227,7 @@ namespace traccc
              **/
             transform3(const vector3 &t)
             {
-
-                _data.reserve(4);
-                _data.push_back({1., 0., 0., 0.});
-                _data.push_back({0., 1., 0., 0.});
-                _data.push_back({0., 0., 1., 0.});
-                _data.push_back({t[0],t[1],t[2], 1.});
-
-       /*         _data[0][0] = 1.;
+        /*        _data[0][0] = 1.;
                 _data[0][1] = 0.;
                 _data[0][2] = 0.;
                 _data[0][3] = 0.;
@@ -243,12 +238,12 @@ namespace traccc
                 _data[2][0] = 0.;
                 _data[2][1] = 0.;
                 _data[2][2] = 1.;
-                _data[2][3] = 0.;
+                _data[2][3] = 0.; */
                 _data[3][0] = t[0];
                 _data[3][1] = t[1];
                 _data[3][2] = t[2];
                 _data[3][3] = 1.;
-*/
+
                 _data_inv = invert(_data);
             }
 
@@ -292,13 +287,7 @@ namespace traccc
              **/
             transform3()
             {
-                _data.reserve(4);
-                _data.push_back({1., 0., 0., 0.});
-                _data.push_back({0., 1., 0., 0.});
-                _data.push_back({0., 0., 1., 0.});
-                _data.push_back({0., 0., 0., 1.});
-
-    /*            _data[0][0] = 1.;
+                _data[0][0] = 1.;
                 _data[0][1] = 0.;
                 _data[0][2] = 0.;
                 _data[0][3] = 0.;
@@ -314,7 +303,7 @@ namespace traccc
                 _data[3][1] = 0.;
                 _data[3][2] = 0.;
                 _data[3][3] = 1.;
-*/
+
                 _data_inv = _data;
             }
 
@@ -352,11 +341,11 @@ namespace traccc
              */
             static matrix44 invert(const matrix44 &m)
             {
-                matrix44 i;
-                i.reserve(4);
-                for (int j = 0; j < 4; j++) {
-                    i.push_back({0,0,0,0});
-                }
+                matrix44 i{{0., 0., 0., 0.},
+                           {0., 0., 0., 0.},
+                           {0., 0., 0., 0.},
+                           {0., 0., 0., 0.}};
+
                 i[0][0] = m[2][1] * m[3][2] * m[1][3] - m[3][1] * m[2][2] * m[1][3] + m[3][1] * m[1][2] * m[2][3] - m[1][1] * m[3][2] * m[2][3] - m[2][1] * m[1][2] * m[3][3] + m[1][1] * m[2][2] * m[3][3];
                 i[1][0] = m[3][0] * m[2][2] * m[1][3] - m[2][0] * m[3][2] * m[1][3] - m[3][0] * m[1][2] * m[2][3] + m[1][0] * m[3][2] * m[2][3] + m[2][0] * m[1][2] * m[3][3] - m[1][0] * m[2][2] * m[3][3];
                 i[2][0] = m[2][0] * m[3][1] * m[1][3] - m[3][0] * m[2][1] * m[1][3] + m[3][0] * m[1][1] * m[2][3] - m[1][0] * m[3][1] * m[2][3] - m[2][0] * m[1][1] * m[3][3] + m[1][0] * m[2][1] * m[3][3];
@@ -391,13 +380,11 @@ namespace traccc
              */
             static vector3 rotate(const matrix44 &m, const vector3 &v)
             {
-            //    printf("reaching rotate with v=[%f %f %f] and matrix44[0][0]=%f\n", v[0], v[1],v[2], m[0][0]);
-                vector3* result = new vector3();
-                result->push_back(m[0][0] * v[0] + m[1][0] * v[1] + m[2][0] * v[2]);
-                result->push_back(m[0][1] * v[0] + m[1][1] * v[1] + m[2][1] * v[2]);
-                result->push_back(m[0][2] * v[0] + m[1][2] * v[1] + m[2][2] * v[2]);
-         //       printf("leaving rotate with result[1]:%f\n", result->at(1));
-                return *result;
+                vector3 result(3,0);
+                result[0] = m[0][0] * v[0] + m[1][0] * v[1] + m[2][0] * v[2];
+                result[1] = m[0][1] * v[0] + m[1][1] * v[1] + m[2][1] * v[2];
+                result[2] = m[0][2] * v[0] + m[1][2] * v[1] + m[2][2] * v[2];
+                return result;
             }
 
             /** This method retrieves the rotation of a transform */

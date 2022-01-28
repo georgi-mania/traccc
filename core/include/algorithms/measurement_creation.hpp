@@ -51,7 +51,7 @@ namespace traccc
             // Assign the module id
             measurements.module = clusters.module;
             // Run the algorithm
-            measurements.items.reserve(clusters.items.size());
+            measurements.items.reserve(100 /*clusters.items.size()*/);
             for (const auto &cluster : clusters.items)
             {
                 point2 p = {0., 0.};
